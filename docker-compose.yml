@@ -1,0 +1,17 @@
+services:
+  streamlit:
+    image: mbrede/ccdemo:latest
+    ports:
+      - "8501:8501"
+    depends_on:
+      - redis
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
