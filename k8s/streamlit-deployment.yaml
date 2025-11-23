@@ -18,6 +18,13 @@ spec:
         image: mbrede/ccdemo:latest
         ports:
         - containerPort: 8501
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "500m"
+          limits:
+            memory: "512Mi"
+            cpu: "1000m"
         env:
         - name: REDIS_HOST
           value: "redis"
