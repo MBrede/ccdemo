@@ -1,87 +1,40 @@
-# Container Orchestration Demo (ccDemo)
+# Recipe API — Docker Compose Demo
 
-Streamlit application demonstrating container orchestration with Redis caching.
+FastAPI + PostgreSQL demo for the Cloud Computing course (session 6).
 
-## Features
+Demonstrates multi-container orchestration with Docker Compose: the API container connects to a PostgreSQL database using Compose DNS, with a named volume for persistence.
 
-- Page view counter using Redis
-- Interactive message caching
-- Real-time Redis statistics
-- Container health monitoring
-
-
-## Run with Docker Compose
+## Run
 
 ```bash
 docker compose up -d
 ```
 
-## Environment Variables
+Open `http://localhost:8000/docs` to explore the API.
 
-- `REDIS_HOST`: Redis server hostname (default: redis)
-- `REDIS_PORT`: Redis server port (default: 6379)
-
-## Access
-
-Open browser to `http://localhost:8501`
-
-## Deploy to Kubernetes (kind)
-
-### 1. Create kind cluster
+## Test persistence
 
 ```bash
-kind create cluster --name demo-cluster
+# Add a recipe via /docs, then:
+curl http://localhost:8000/recipes          # data in PostgreSQL
+docker compose restart api
+curl http://localhost:8000/recipes          # still there after restart
+docker compose down && docker compose up -d
+curl http://localhost:8000/recipes          # still there after full restart
 ```
 
-or for more nodes:
+## Cleanup
 
 ```bash
-kind create cluster --name demo-cluster --config kind-config.yaml
+docker compose down -v   # also removes the database volume
 ```
 
-### 2. Create namespace
+## Run tests
+
+The test suite covers the full CRUD API students implement in the exercise.
+It uses SQLite in-memory so no running database is needed.
 
 ```bash
-kubectl create namespace streamlit-demo
-```
-
-### 3. Apply all manifests
-
-```bash
-kubectl apply -f k8s/redis-deployment.yaml 
-kubectl apply -f k8s/redis-service.yaml 
-kubectl apply -f k8s/streamlit-deployment.yaml 
-kubectl apply -f k8s/streamlit-service.yaml 
-
-kubectl get all -n streamlit-demo
-
-kubectl get pods -n streamlit-demo -w
-```
-
-
-
-### 4. Access the application
-
-Open browser to `http://localhost:8501`
-
-### 5. Verify deployment
-
-```bash
-kubectl get all -n streamlit-demo
-kubectl logs -n streamlit-demo deployment/streamlit
-kubectl logs -n streamlit-demo deployment/redis
-```
-
-### 6. Scale the application
-
-```bash
-kubectl scale deployment/streamlit --replicas=3 -n streamlit-demo
-kubectl get pods -n streamlit-demo -w
-```
-
-### 7. Cleanup
-
-```bash
-kubectl delete namespace streamlit-demo
-kind delete cluster --name demo-cluster
+pip install pytest httpx
+pytest test_main.py -v
 ```

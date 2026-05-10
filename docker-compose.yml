@@ -1,17 +1,28 @@
 services:
-  streamlit:
-    image: mbrede/ccdemo:latest
+  api:
+    build: .
     ports:
-      - "8501:8501"
-    depends_on:
-      - redis
+      - "8000:8000"
     environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
+      - DATABASE_URL=postgresql+psycopg://user:password@db/recipes
+    depends_on:
+      db:
+        condition: service_healthy
     restart: unless-stopped
 
-  redis:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
-    restart: unless-stopped
+  db:
+    image: postgres:16-alpine
+    environment:  # demo only: use .env or Docker secrets in production
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=recipes
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d recipes"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  db-data:
