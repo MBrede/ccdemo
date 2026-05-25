@@ -15,7 +15,7 @@ jobs:
       with:
         python-version: '3.11'
 
-    - run: pip install -r requirements.txt pytest ruff black
+    - run: pip install -r api/requirements.txt pytest ruff black
 
     - run: ruff check .
     - run: black --check .
@@ -34,7 +34,7 @@ jobs:
       with:
         python-version: '3.11'
 
-    - run: pip install -r requirements.txt pdoc
+    - run: pip install -r api/requirements.txt pdoc
 
     - run: pdoc main -o docs/
 
