@@ -15,11 +15,11 @@ jobs:
       with:
         python-version: '3.11'
 
-    - run: pip install -r api/requirements.txt pytest ruff black
+    - run: pip install -r api/requirements.txt pytest ruff black httpx
 
     - run: ruff check .
     - run: black --check .
-    - run: pytest
+    - run: pytest api
 
   docs:
     needs: ci

@@ -5,7 +5,7 @@ from sqlmodel import Field, SQLModel, Session, create_engine, select
 from typing import Annotated, Optional, Literal
 import os
 
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite://")
 engine = create_engine(DATABASE_URL)
 
 Cuisine = Literal["Italian", "French", "Japanese", "Mexican", "Other"]
