@@ -54,6 +54,7 @@ def get_recipes(
         query = query.where(Recipe.cuisine == cuisine)
     return session.exec(query).all()
 
+
 @app.post("/recipes", response_model=Recipe, status_code=201)
 def create_recipe(recipe: RecipeCreate, session: Session = Depends(get_session)):
     db_recipe = Recipe.model_validate(recipe)
