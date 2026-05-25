@@ -68,7 +68,8 @@ def test_get_missing_recipe_returns_404(client):
 def test_filter_by_cuisine_returns_only_matching(client):
     r = client.get("/recipes?cuisine=Italian")
     assert r.status_code == 200
-    assert r.json() and all(rec["cuisine"] == "Italian" for rec in r.json())
+    data = r.json()
+    assert data and all(rec["cuisine"] == "Italian" for rec in data)
 
 def test_filter_by_vegetarian_returns_only_matching(client):
     r = client.get("/recipes?is_vegetarian=true")
