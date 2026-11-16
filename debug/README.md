@@ -1,6 +1,6 @@
 # Detective Round: Broken Compose Files
 
-Each folder holds a Compose setup that does not work. Find out **why**, then fix it.
+Each folder holds a Compose setup that is **broken on purpose**. Find out **why**, then fix it.
 
 ```bash
 cd debug/01
