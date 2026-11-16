@@ -1,6 +1,6 @@
 # Recipe API — Docker Compose Demo
 
-FastAPI + PostgreSQL demo for the Cloud Computing course (session 6).
+FastAPI + PostgreSQL demo for the Cloud Computing course (Docker Compose session).
 
 Demonstrates multi-container orchestration with Docker Compose: the API container connects to a PostgreSQL database using Compose DNS, with a named volume for persistence.
 
@@ -11,6 +11,8 @@ docker compose up -d
 ```
 
 Open `http://localhost:8000/docs` to explore the API.
+
+On first start, PostgreSQL runs `db/init.sql` and seeds a few recipes. It only does this while the `db-data` volume is empty: `docker compose down -v` to reseed.
 
 ## Test persistence
 
