@@ -1,63 +1,58 @@
-from contextlib import asynccontextmanager
-from fastapi import FastAPI, Depends, Query
-from sqlmodel import Field, SQLModel, Session, create_engine, select
-from typing import Annotated, Optional, Literal
 import os
+from typing import Annotated, Literal
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite://")
-engine = create_engine(DATABASE_URL)
+import psycopg
+from fastapi import FastAPI, Query
+from psycopg.rows import class_row
+from pydantic import BaseModel, Field
 
 Cuisine = Literal["Italian", "French", "Japanese", "Mexican", "Other"]
 
 
-class RecipeBase(SQLModel):
+class RecipeBase(BaseModel):
     name: str = Field(min_length=1)
-    cuisine: str
+    cuisine: Cuisine
     preparation_time: int = Field(gt=0)
     is_vegetarian: bool = False
 
 
-class Recipe(RecipeBase, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
+class Recipe(RecipeBase):
+    id: int
 
 
 class RecipeCreate(RecipeBase):
-    cuisine: Cuisine  # validated on input, plain text in the table
+    pass
 
 
-def get_session():
-    with Session(engine) as session:
-        yield session
-
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    SQLModel.metadata.create_all(engine)
-    yield
+def connect():
+    # One connection per request; rows come back as Recipe objects.
+    return psycopg.connect(os.environ["DATABASE_URL"], row_factory=class_row(Recipe))
 
 
 app = FastAPI(
     title="Recipe API",
     description="Restaurant Recipe API with PostgreSQL",
-    lifespan=lifespan,
 )
 
 
 @app.get("/recipes", response_model=list[Recipe])
 def get_recipes(
     cuisine: Annotated[Cuisine | None, Query(description="Filter by cuisine")] = None,
-    session: Session = Depends(get_session),
 ):
-    query = select(Recipe)
-    if cuisine:
-        query = query.where(Recipe.cuisine == cuisine)
-    return session.exec(query).all()
+    with connect() as conn:
+        if cuisine:
+            return conn.execute(
+                "SELECT * FROM recipe WHERE cuisine = %s", (cuisine,)
+            ).fetchall()
+        return conn.execute("SELECT * FROM recipe").fetchall()
 
 
 @app.post("/recipes", response_model=Recipe, status_code=201)
-def create_recipe(recipe: RecipeCreate, session: Session = Depends(get_session)):
-    db_recipe = Recipe.model_validate(recipe)
-    session.add(db_recipe)
-    session.commit()
-    session.refresh(db_recipe)
-    return db_recipe
+def create_recipe(recipe: RecipeCreate):
+    with connect() as conn:
+        return conn.execute(
+            "INSERT INTO recipe (name, cuisine, preparation_time, is_vegetarian) "
+            "VALUES (%(name)s, %(cuisine)s, %(preparation_time)s, %(is_vegetarian)s) "
+            "RETURNING *",
+            recipe.model_dump(),
+        ).fetchone()

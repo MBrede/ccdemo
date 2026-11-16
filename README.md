@@ -23,7 +23,7 @@ The fixed version is on the slides.
 
 ## What is here
 
-- `api/`: the Recipe API (FastAPI + SQLModel) and its `Dockerfile`
+- `api/`: the Recipe API (FastAPI + psycopg, plain SQL) and its `Dockerfile`
 - `db/init.sql`: seeds a few recipes when PostgreSQL starts with an empty volume
 - `config/.env`: database credentials (demo values)
 

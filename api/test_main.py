@@ -1,8 +1,9 @@
+import os
+
+import psycopg
 import pytest
-import main as app_module
 from fastapi.testclient import TestClient
-from sqlmodel import SQLModel, create_engine
-from sqlmodel.pool import StaticPool
+
 from main import app
 
 CARBONARA = {
@@ -27,19 +28,14 @@ TACOS = {
 
 @pytest.fixture(name="client")
 def client_fixture():
-    engine = create_engine(
-        "sqlite://",
-        connect_args={"check_same_thread": False},
-        poolclass=StaticPool,
-    )
-    app_module.engine = engine
-    SQLModel.metadata.create_all(engine)
+    # Needs a running PostgreSQL with the schema from db/init.sql.
+    with psycopg.connect(os.environ["DATABASE_URL"]) as conn:
+        conn.execute("TRUNCATE recipe RESTART IDENTITY")
     client = TestClient(app)
     client.post("/recipes", json=CARBONARA)
     client.post("/recipes", json=RATATOUILLE)
     client.post("/recipes", json=TACOS)
     yield client
-    SQLModel.metadata.drop_all(engine)
 
 
 # ── GET /recipes ──────────────────────────────────────────────────────────────

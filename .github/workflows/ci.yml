@@ -8,6 +8,20 @@ on:
 jobs:
   ci:
     runs-on: ubuntu-latest
+    services:
+      db:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: recipes
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -h 127.0.0.1 -U user -d recipes"
+          --health-interval 5s --health-timeout 5s --health-retries 5
+    env:
+      DATABASE_URL: postgresql://user:password@localhost:5432/recipes
     steps:
     - uses: actions/checkout@v4
 
@@ -19,6 +33,7 @@ jobs:
 
     - run: ruff check .
     - run: black --check .
+    - run: psql "$DATABASE_URL" -f db/init.sql
     - run: pytest api
 
   docs:
