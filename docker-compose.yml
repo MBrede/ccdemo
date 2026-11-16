@@ -11,13 +11,13 @@ services:
     restart: unless-stopped
 
   db:
-    image: postgres:16-alpine
+    image: postgres:18-alpine
     environment:  # demo only: use .env or Docker secrets in production
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=recipes
     volumes:
-      - db-data:/var/lib/postgresql/data
+      - db-data:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U user -d recipes"]
       interval: 5s
