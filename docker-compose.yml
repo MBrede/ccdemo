@@ -1,19 +1,19 @@
 services:
   api:
-    build: ../../api
+    build: ./api
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db/${POSTGRES_DB}
+      - DATABASE_URL=postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost/${POSTGRES_DB}
     depends_on:
       - db
 
   db:
     image: postgres:18-alpine
-    env_file: .env
+    env_file: config/.env
     volumes:
       - db-data:/var/lib/postgresql
-      - ../../db:/docker-entrypoint-initdb.d:ro
+      - ./db:/docker-entrypoint-initdb.d:ro
 
 volumes:
   db-data:

@@ -2,21 +2,30 @@
 
 FastAPI + PostgreSQL demo for the Cloud Computing course (Docker Compose session).
 
-## No working `docker-compose.yml`? On purpose.
+## The `docker-compose.yml` is broken. On purpose.
 
-This repository deliberately ships **without** a working `docker-compose.yml`. You write it yourself in the lab, from the slides. Everything else is here:
+It contains **three bugs**. Your job in the lab: make it run.
+
+```bash
+docker compose up -d --build
+curl http://localhost:8000/recipes   # goal: returns a list of recipes
+```
+
+Tools: `docker compose ps`, `docker compose logs api`, `docker compose config`.
+
+One bug hides once the database volume exists. Final check:
+
+```bash
+docker compose down -v && docker compose up -d
+```
+
+The fixed version is on the slides.
+
+## What is here
 
 - `api/`: the Recipe API (FastAPI + SQLModel) and its `Dockerfile`
 - `db/init.sql`: seeds a few recipes when PostgreSQL starts with an empty volume
-- `debug/`: four **broken** Compose setups for the detective round, see `debug/README.md`
-
-## Run (once your `docker-compose.yml` exists)
-
-```bash
-docker compose up -d
-```
-
-Open `http://localhost:8000/docs` to explore the API.
+- `config/.env`: database credentials (demo values)
 
 ## Cleanup
 
