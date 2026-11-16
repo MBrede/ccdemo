@@ -20,10 +20,17 @@ services:
       - db-data:/var/lib/postgresql
       - ./db:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U user -d recipes"]
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U user -d recipes"]
       interval: 5s
       timeout: 5s
       retries: 5
+
+  smoke-test:
+    image: curlimages/curl
+    command: ["-fsS", "--retry", "10", "--retry-delay", "1", "--retry-all-errors", "http://api:8000/recipes"]
+    depends_on:
+      - api
+    profiles: [test]
 
 volumes:
   db-data:

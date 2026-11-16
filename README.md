@@ -25,6 +25,16 @@ docker compose down && docker compose up -d
 curl http://localhost:8000/recipes          # still there after full restart
 ```
 
+## Smoke test
+
+```bash
+docker compose run --rm smoke-test   # one-off job, skipped by `up` (profile: test)
+```
+
+## Detective round
+
+`debug/` holds four broken Compose setups. See `debug/README.md`.
+
 ## Cleanup
 
 ```bash

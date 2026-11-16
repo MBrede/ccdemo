@@ -1,6 +1,5 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Depends, Query
-from pydantic import BaseModel
 from sqlmodel import Field, SQLModel, Session, create_engine, select
 from typing import Annotated, Optional, Literal
 import os
@@ -11,19 +10,19 @@ engine = create_engine(DATABASE_URL)
 Cuisine = Literal["Italian", "French", "Japanese", "Mexican", "Other"]
 
 
-class RecipeCreate(BaseModel):
+class RecipeBase(SQLModel):
     name: str = Field(min_length=1)
-    cuisine: Cuisine
+    cuisine: str
     preparation_time: int = Field(gt=0)
     is_vegetarian: bool = False
 
 
-class Recipe(SQLModel, table=True):
+class Recipe(RecipeBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    name: str
-    cuisine: str
-    preparation_time: int
-    is_vegetarian: bool = False
+
+
+class RecipeCreate(RecipeBase):
+    cuisine: Cuisine  # validated on input, plain text in the table
 
 
 def get_session():
