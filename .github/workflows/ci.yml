@@ -23,9 +23,9 @@ jobs:
     env:
       DATABASE_URL: postgresql://user:password@localhost:5432/recipes
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
-    - uses: actions/setup-python@v5
+    - uses: actions/setup-python@v6
       with:
         python-version: '3.11'
 
@@ -43,15 +43,15 @@ jobs:
     permissions:
       contents: write
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
-    - uses: actions/setup-python@v5
+    - uses: actions/setup-python@v6
       with:
         python-version: '3.11'
 
     - run: pip install -r api/requirements.txt pdoc
 
-    - run: pdoc main -o docs/
+    - run: pdoc api/main.py -o docs/
 
     - uses: peaceiris/actions-gh-pages@v4
       with:
